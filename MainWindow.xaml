@@ -18,6 +18,8 @@
             <Setter Property="Foreground" Value="White" />
             <Setter Property="FontWeight" Value="SemiBold" />
             <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Margin" Value="0,0,8,0" />
+            <Style.Triggers><Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.45" /></Trigger></Style.Triggers>
         </Style>
         <Style TargetType="TextBox">
             <Setter Property="Padding" Value="10,9" />
@@ -64,7 +66,7 @@
                     <TextBlock Text="Acesso restrito aos administradores do instituto." Foreground="{StaticResource MutedBrush}" Margin="0,0,0,28" />
 
                     <TextBlock Text="E-mail" FontWeight="SemiBold" Margin="0,0,0,7" />
-                    <TextBox x:Name="EmailTextBox" Text="admin@medishop.com" Margin="0,0,0,18" />
+                    <TextBox x:Name="EmailTextBox" Margin="0,0,0,18" />
                     <TextBlock Text="Senha" FontWeight="SemiBold" Margin="0,0,0,7" />
                     <PasswordBox x:Name="PasswordInput" Margin="0,0,0,20" KeyDown="PasswordInput_OnKeyDown" />
 
@@ -80,7 +82,7 @@
             </Border>
         </Grid>
 
-        <Grid x:Name="AdminView" Visibility="Collapsed">
+        <Grid x:Name="AdminView">
             <Grid.Style>
                 <Style TargetType="Grid">
                     <Setter Property="Visibility" Value="Collapsed" />
@@ -120,11 +122,17 @@
 
                 <DockPanel Grid.Row="0" Margin="0,0,0,18">
                     <StackPanel DockPanel.Dock="Left">
-                        <TextBlock Text="Visao operacional" FontSize="26" FontWeight="SemiBold" Foreground="{StaticResource TextBrush}" />
+                        <TextBlock Text="Visão operacional" FontSize="26" FontWeight="SemiBold" Foreground="{StaticResource TextBrush}" />
                         <TextBlock Text="{Binding LastUpdated, StringFormat=Atualizado em {0}}" Foreground="{StaticResource MutedBrush}" Margin="0,4,0,0" />
                     </StackPanel>
-                    <TextBlock DockPanel.Dock="Right" Text="{Binding ErrorMessage}" Foreground="#A02E2A"
-                               VerticalAlignment="Center" TextWrapping="Wrap" MaxWidth="520" />
+                    <StackPanel DockPanel.Dock="Right" HorizontalAlignment="Right" MaxWidth="560">
+                        <TextBlock Text="{Binding ErrorMessage}" Foreground="#A02E2A" TextWrapping="Wrap" />
+                        <TextBlock Text="{Binding SuccessMessage}" Foreground="#156B5D" TextWrapping="Wrap" />
+                        <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Width="300"
+                                 HorizontalAlignment="Right" Margin="0,6,0,0" ToolTip="Buscar por nome, curso, e-mail ou pedido"
+                                 AutomationProperties.Name="Buscar nas listas" />
+                        <TextBlock Text="Buscar por nome, curso, e-mail ou pedido" Foreground="#66736F" FontSize="11" HorizontalAlignment="Right" />
+                    </StackPanel>
                 </DockPanel>
 
                 <UniformGrid Grid.Row="1" Columns="4" Margin="0,0,0,20">
@@ -144,7 +152,13 @@
 
                 <TabControl Grid.Row="2" Background="White" BorderBrush="#DCE2E0">
                     <TabItem Header="Cursos">
-                        <DataGrid ItemsSource="{Binding Courses}" Margin="12">
+                        <DockPanel Margin="12">
+                            <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,12">
+                                <Button Content="Novo curso" Click="NewCourse_OnClick" />
+                                <Button Content="Editar curso" Click="EditCourse_OnClick" IsEnabled="{Binding HasCourse}" />
+                                <Button Content="Arquivar / restaurar" Click="ArchiveCourse_OnClick" IsEnabled="{Binding HasCourse}" />
+                            </StackPanel>
+                        <DataGrid ItemsSource="{Binding CoursesView}" SelectedItem="{Binding SelectedCourse}" SelectionMode="Single" SelectionChanged="CourseSelection_OnChanged">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="60" />
                                 <DataGridTextColumn Header="Curso" Binding="{Binding Nome}" Width="2*" />
@@ -155,31 +169,69 @@
                                 <DataGridCheckBoxColumn Header="Ativo" Binding="{Binding IsActive}" Width="70" />
                             </DataGrid.Columns>
                         </DataGrid>
+                        </DockPanel>
+                    </TabItem>
+                    <TabItem Header="Turmas">
+                        <DockPanel Margin="12">
+                            <StackPanel DockPanel.Dock="Top" Margin="0,0,0,12">
+                                <TextBlock Text="Selecione o curso para administrar suas turmas" Margin="0,0,0,6" />
+                                <ComboBox ItemsSource="{Binding Courses}" SelectedItem="{Binding SelectedCourse}"
+                                          SelectionChanged="CourseSelection_OnChanged" DisplayMemberPath="Nome" MinHeight="36" Padding="8" AutomationProperties.Name="Curso das turmas" />
+                                <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                                    <Button Content="Nova turma" Click="NewClass_OnClick" IsEnabled="{Binding HasCourse}" />
+                                    <Button Content="Editar turma" Click="EditClass_OnClick" IsEnabled="{Binding HasClass}" />
+                                    <Button Content="Alunos da turma" Click="ClassStudents_OnClick" IsEnabled="{Binding HasClass}" />
+                                </StackPanel>
+                            </StackPanel>
+                            <DataGrid ItemsSource="{Binding Classes}" SelectedItem="{Binding SelectedClass}" SelectionMode="Single">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Turma" Binding="{Binding Id}" Width="70" />
+                                    <DataGridTextColumn Header="Início (local)" Binding="{Binding LocalStartDate, StringFormat=dd/MM/yyyy HH:mm}" Width="160" />
+                                    <DataGridTextColumn Header="Local" Binding="{Binding Local}" Width="*" />
+                                    <DataGridTextColumn Header="Instrutor" Binding="{Binding Instructor}" Width="*" />
+                                    <DataGridTextColumn Header="Capacidade" Binding="{Binding Capacity}" Width="100" />
+                                    <DataGridTextColumn Header="Vagas" Binding="{Binding AvailableSeats}" Width="70" />
+                                    <DataGridTextColumn Header="Situação" Binding="{Binding StatusLabel}" Width="110" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </DockPanel>
                     </TabItem>
                     <TabItem Header="Pedidos">
-                        <DataGrid ItemsSource="{Binding Orders}" Margin="12">
+                        <DockPanel Margin="12">
+                            <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,12">
+                                <Button Content="Detalhes / alterar situação" Click="EditOrder_OnClick" IsEnabled="{Binding HasOrder}" />
+                            </StackPanel>
+                        <DataGrid ItemsSource="{Binding OrdersView}" SelectedItem="{Binding SelectedOrder}" SelectionMode="Single">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Pedido" Binding="{Binding Id}" Width="75" />
-                                <DataGridTextColumn Header="Data" Binding="{Binding DataPedido, StringFormat=dd/MM/yyyy HH:mm}" Width="140" />
+                                <DataGridTextColumn Header="Data" Binding="{Binding LocalOrderDate, StringFormat=dd/MM/yyyy HH:mm}" Width="140" />
                                 <DataGridTextColumn Header="Cliente" Binding="{Binding Usuario.Nome}" Width="*" />
-                                <DataGridTextColumn Header="Pagamento" Binding="{Binding PaymentStatus}" Width="120" />
-                                <DataGridTextColumn Header="Pedido" Binding="{Binding Status}" Width="110" />
+                                <DataGridTextColumn Header="Pagamento" Binding="{Binding PaymentStatusLabel}" Width="120" />
+                                <DataGridTextColumn Header="Pedido" Binding="{Binding StatusLabel}" Width="110" />
                                 <DataGridTextColumn Header="Metodo" Binding="{Binding PaymentMethod}" Width="110" />
                                 <DataGridTextColumn Header="Total" Binding="{Binding Total, StringFormat=C}" Width="120" />
                             </DataGrid.Columns>
                         </DataGrid>
+                        </DockPanel>
                     </TabItem>
                     <TabItem Header="Alunos">
-                        <DataGrid ItemsSource="{Binding Students}" Margin="12">
+                        <DockPanel Margin="12">
+                            <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,12">
+                                <Button Content="Novo cadastro" Click="NewStudent_OnClick" />
+                                <Button Content="Editar cadastro" Click="EditStudent_OnClick" IsEnabled="{Binding HasStudent}" />
+                                <Button Content="Excluir cadastro" Background="#8C3A36" Click="DeleteStudent_OnClick" IsEnabled="{Binding HasStudent}" />
+                            </StackPanel>
+                        <DataGrid ItemsSource="{Binding StudentsView}" SelectedItem="{Binding SelectedStudent}" SelectionMode="Single">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Aluno" Binding="{Binding Name}" Width="*" />
                                 <DataGridTextColumn Header="E-mail" Binding="{Binding Email}" Width="*" />
                                 <DataGridTextColumn Header="Telefone" Binding="{Binding Phone}" Width="130" />
                                 <DataGridTextColumn Header="Curso" Binding="{Binding CourseName}" Width="2*" />
                                 <DataGridTextColumn Header="Matricula" Binding="{Binding EnrollmentDate}" Width="110" />
-                                <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="100" />
+                                <DataGridTextColumn Header="Status" Binding="{Binding StatusLabel}" Width="100" />
                             </DataGrid.Columns>
                         </DataGrid>
+                        </DockPanel>
                     </TabItem>
                 </TabControl>
             </Grid>
@@ -189,7 +241,7 @@
             <Border Width="260" Padding="24" Background="White" VerticalAlignment="Center" HorizontalAlignment="Center">
                 <StackPanel>
                     <ProgressBar IsIndeterminate="True" Height="5" />
-                    <TextBlock Text="Consultando a API..." HorizontalAlignment="Center" Margin="0,16,0,0" />
+                    <TextBlock Text="Processando…" HorizontalAlignment="Center" Margin="0,16,0,0" />
                 </StackPanel>
             </Border>
         </Border>

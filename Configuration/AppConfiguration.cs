@@ -9,29 +9,29 @@ public static class AppConfiguration
     {
         get
         {
-            var configuredUrl = Environment.GetEnvironmentVariable("PIM4_API_BASE_URL");
-            if (string.IsNullOrWhiteSpace(configuredUrl)) configuredUrl = ReadConfiguredUrl();
-
-            if (!Uri.TryCreate(EnsureTrailingSlash(configuredUrl), UriKind.Absolute, out var uri))
-                throw new InvalidOperationException("Api:BaseUrl deve ser uma URL absoluta valida.");
-
-            return uri;
+            var configured = Environment.GetEnvironmentVariable("PIM4_API_BASE_URL");
+            if (string.IsNullOrWhiteSpace(configured))
+            {
+                var path = Path.Combine(AppContext.BaseDirectory, "appsettings.json");
+                if (!File.Exists(path)) configured = "http://localhost:5278/";
+                else
+                {
+                    using var document = JsonDocument.Parse(File.ReadAllText(path));
+                    configured = document.RootElement.GetProperty("Api").GetProperty("BaseUrl").GetString();
+                }
+            }
+            return ValidateBaseUri(configured);
         }
     }
 
-    private static string ReadConfiguredUrl()
+    public static Uri ValidateBaseUri(string? configured)
     {
-        var path = Path.Combine(AppContext.BaseDirectory, "appsettings.json");
-        if (!File.Exists(path)) return "http://localhost:5278/";
-
-        using var document = JsonDocument.Parse(File.ReadAllText(path));
-        return document.RootElement.GetProperty("Api").GetProperty("BaseUrl").GetString()
-            ?? "http://localhost:5278/";
-    }
-
-    private static string EnsureTrailingSlash(string? value)
-    {
-        var url = value?.Trim() ?? string.Empty;
-        return url.EndsWith('/') ? url : $"{url}/";
+        if (!Uri.TryCreate(configured?.Trim(), UriKind.Absolute, out var uri) ||
+            uri.Scheme is not ("http" or "https") || !string.IsNullOrEmpty(uri.UserInfo) ||
+            !string.IsNullOrEmpty(uri.Query) || !string.IsNullOrEmpty(uri.Fragment) || uri.AbsolutePath != "/")
+            throw new InvalidOperationException("Configure a URL raiz da API, sem /api, usuário, senha ou parâmetros.");
+        if (uri.Scheme != "https" && !uri.IsLoopback)
+            throw new InvalidOperationException("Use HTTPS para acessar uma API externa. HTTP é permitido somente para desenvolvimento local.");
+        return uri;
     }
 }

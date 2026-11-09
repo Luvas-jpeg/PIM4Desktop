@@ -1,10 +1,27 @@
 # MediShop Admin Desktop
 
-Aplicativo administrativo Windows desenvolvido em C# com WPF e .NET 10.
+Painel administrativo Windows em C# com WPF e .NET 10. Usa a mesma API e as mesmas contas administrativas do site; não acessa PostgreSQL diretamente.
 
-## Configuracao
+## Funcionalidades
 
-A URL local da API fica em `appsettings.json`:
+- Login restrito à role `Admin`, JWT e renovação compartilhada entre consultas concorrentes.
+- Logout com limpeza local mesmo sem conexão; revogação do refresh token quando o servidor está disponível.
+- Indicadores de cursos ativos, pedidos pendentes, alunos ativos e total dos pedidos pagos.
+- Busca local por curso/categoria, nome/e-mail do aluno e cliente/número/situação do pedido.
+- Cursos presenciais: cadastro, edição, ativação, arquivamento e restauração.
+- Turmas: consulta inclusive de canceladas, cadastro e edição de data, término, local, instrutor, capacidade e situação.
+- Alunos da turma: consulta de matrícula e participação, alteração de situação e transferência para outra turma disponível do mesmo curso.
+- Pedidos: itens, valores, situação financeira e alteração da situação operacional.
+- Alunos: cadastro manual, edição e exclusão com confirmação e validação dos vínculos pela API.
+- Formulários com validações locais e apresentação das mensagens de negócio e de validação retornadas pelo servidor.
+
+A API continua responsável por autorização, vagas, transações, auditoria, transições de situação e restrições de exclusão. O cadastro manual de aluno não cria compra nem matrícula paga. A situação geral do aluno pode afetar todas as suas matrículas; a ação em **Turmas → Alunos da turma** identifica uma matrícula específica. Editar o cadastro não transfere vagas entre cursos.
+
+O desktop não confirma pagamentos manualmente. Pedidos não pagos não podem avançar de situação; cancelar um pedido pago exige o fluxo de reembolso disponível no sistema. O gateway real permanece uma integração do backend. Esta evolução cobre a operação de cursos presenciais; não inclui editor EAD, cupons, usuários, auditoria ou execução de reembolso pelo desktop.
+
+## Configuração da API
+
+Em `appsettings.json`, informe a URL **raiz**, sem `/api`:
 
 ```json
 {
@@ -14,22 +31,78 @@ A URL local da API fica em `appsettings.json`:
 }
 ```
 
-Em producao, use HTTPS. A variavel `PIM4_API_BASE_URL` sobrescreve o arquivo:
+Para acessar o Render, substitua pela URL HTTPS real da API. A variável `PIM4_API_BASE_URL` tem precedência sobre o arquivo:
 
 ```powershell
-$env:PIM4_API_BASE_URL = "https://api.seudominio.com.br/"
+$env:PIM4_API_BASE_URL = "https://sua-api.onrender.com/"
+dotnet run --project PIM4AdminDesktop.csproj
 ```
 
-## Executar
+HTTP é aceito somente para loopback local. Não coloque credenciais, tokens ou string de conexão na URL/configuração. Não é necessário alterar CORS para este cliente nativo.
+
+Os horários de turmas são informados e exibidos no fuso do Windows; os formulários convertem datas para UTC antes de enviar à API. Valores monetários usam `pt-BR`, por exemplo `199,90`.
+
+## Executar e publicar
+
+É necessário Windows e o SDK .NET 10 para executar a interface WPF:
 
 ```powershell
-dotnet run
+dotnet run --project PIM4AdminDesktop.csproj
+dotnet publish PIM4AdminDesktop.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o artifacts/desktop
 ```
 
-O login aceita somente usuarios cuja role retornada pela API seja `Admin`. O aplicativo nao acessa o banco diretamente; cursos, pedidos e alunos sao consultados pela API com JWT.
+Distribua a pasta publicada completa, incluindo `appsettings.json`. Configure a URL de produção antes de entregar. Não há instalador nem atualização automática nesta versão.
 
-## Publicar para Windows
+## Organização
+
+```text
+Configuration/              URL e validação de configuração
+Models/                     Contratos de leitura e escrita da API
+Services/ApiClient.cs        HTTP, autenticação e operações administrativas
+Services/AdminValidation.cs  Validações e rótulos de apresentação
+ViewModels/MainViewModel.cs  Sessão, consultas, seleção e filtros
+Views/EditorWindow.cs        Formulário modal compartilhado
+Views/AdminActions.cs        Formulários de cada operação
+Views/ClassStudentsWindow.*  Gestão das matrículas da turma
+MainWindow.*                Login, indicadores e navegação administrativa
+tests/ApiChecks/             Testes executáveis sem dependências externas
+tests/DesktopUiChecks/       Verificações WPF para Windows
+```
+
+## Validação automatizada e CI
 
 ```powershell
-dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true
+# Multiplataforma: autenticação, concorrência, contratos HTTP e validações
+dotnet run --project tests/ApiChecks/ApiChecks.csproj -c Release
+
+# Windows: tela após login, bindings, filtros, formulários e logout
+dotnet run --project tests/DesktopUiChecks/DesktopUiChecks.csproj -c Release
 ```
+
+Os executáveis retornam código diferente de zero diante de uma falha. Usam HTTP controlado em memória; não alteram a API ou o banco de produção. Os testes de contrato verificam rotas, métodos, payloads, manutenção da mensagem de negócio, renovação concorrente, logout offline e durante renovação, bloqueio de usuários não administradores e validações dos campos.
+
+A GitHub Actions executa os testes de API no Linux; em Windows compila o WPF, verifica telas/bindings e publica um pacote `win-x64` como artefato por 14 dias. O pacote deve receber a configuração do ambiente antes da distribuição. A CI não publica o desktop para usuários nem altera o Render.
+
+Validação desta alteração: os testes de API foram executados localmente e o aplicativo e o projeto de verificação WPF foram compilados. A execução das telas WPF depende de Windows e permanece para a CI/validação nesse sistema.
+
+## Capturas para a documentação
+
+A CI gera PNGs das janelas e formulários reais em Windows e publica o artefato `medishop-desktop-screenshots` por 30 dias. Também é possível executar `.\scripts\Capture-Desktop.ps1` em um Windows local. As capturas usam dados fictícios e HTTP substituto em memória; documentam a interface, sem comprovar integração com a API real.
+
+O [guia de capturas](docs/CAPTURAS-DESKTOP.md) explica a execução, as 13 cenas previstas e as legendas. O pacote inclui um manifesto com revisão, data e origem das imagens. A geração precisa ser executada em Windows; a compilação em Linux não comprova os PNGs.
+
+## Roteiro de homologação
+
+Use uma API de homologação e contas/dados de teste para verificar operações com gravação:
+
+1. Login administrativo, rejeição de conta comum e expiração/renovação de token.
+2. Criar/editar curso; arquivar e restaurar; conferir o resultado no site.
+3. Criar turma, alterar capacidade preservando reservas e consultar canceladas.
+4. Consultar alunos da turma, alterar uma matrícula e transferir para outra turma com vaga.
+5. Tentar avançar um pedido não pago e conferir a mensagem da API; alterar um pedido pago de teste.
+6. Criar/editar aluno manual, conferir regras de exclusão e confirmar que cadastro não cria compra.
+7. Interromper a conexão, atualizar e sair; testar retomada e nova autenticação.
+
+Os testes em memória não comprovam a execução integrada com o Render. Se uma gravação demorar ou falhar por perda de conexão, atualize a lista antes de repetir: o servidor pode já ter recebido a operação.
+
+[Arquitetura do sistema](../PIM4Front/docs/ARQUITETURA.md) · [Arquitetura da API](../PIM4API/docs/ARQUITETURA.md) · [Banco e DER](../PIM4API/docs/BANCO-DE-DADOS.md).
