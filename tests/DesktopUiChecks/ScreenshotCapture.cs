@@ -152,7 +152,22 @@ internal sealed class ScreenshotCapture(string directory)
         const double scale = 1.5;
         var bitmap = new RenderTargetBitmap((int)Math.Ceiling(content.ActualWidth * scale),
             (int)Math.Ceiling(content.ActualHeight * scale), 96 * scale, 96 * scale, PixelFormats.Pbgra32);
-        bitmap.Render(content);
+        // Render in local coordinates: rendering a root with Margin directly
+        // carries its parent offset into the bitmap and clips the footer.
+        // Paint the Window background too; it is outside the content subtree.
+        var bounds = new Rect(0, 0, content.ActualWidth, content.ActualHeight);
+        var drawing = new DrawingVisual();
+        using (var context = drawing.RenderOpen())
+        {
+            context.DrawRectangle(window.Background ?? Brushes.White, null, bounds);
+            context.DrawRectangle(new VisualBrush(content)
+            {
+                ViewboxUnits = BrushMappingMode.Absolute,
+                Viewbox = bounds,
+                Stretch = Stretch.Fill
+            }, null, bounds);
+        }
+        bitmap.Render(drawing);
         var encoder = new PngBitmapEncoder();
         encoder.Frames.Add(BitmapFrame.Create(bitmap));
         var path = Path.Combine(directory, file);
