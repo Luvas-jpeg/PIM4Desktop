@@ -145,29 +145,21 @@ internal sealed class ScreenshotCapture(string directory)
     }
     private void Save(Window window, string file, string title, string description)
     {
-        var content = (FrameworkElement)window.Content;
+        var content = (FrameworkElement)window;
         content.UpdateLayout();
         if (content.ActualWidth <= 0 || content.ActualHeight <= 0)
             throw new InvalidOperationException("A janela não foi renderizada.");
         const double scale = 1.5;
         var bitmap = new RenderTargetBitmap((int)Math.Ceiling(content.ActualWidth * scale),
             (int)Math.Ceiling(content.ActualHeight * scale), 96 * scale, 96 * scale, PixelFormats.Pbgra32);
-        // Render in local coordinates: rendering a root with Margin directly
-        // carries its parent offset into the bitmap and clips the footer.
-        // Paint the Window background too; it is outside the content subtree.
+        // Capture the Window visual so root margins and native-theme offsets
+        // stay inside the bitmap. Rendering Window.Content alone clips dialogs.
         var bounds = new Rect(0, 0, content.ActualWidth, content.ActualHeight);
-        var drawing = new DrawingVisual();
-        using (var context = drawing.RenderOpen())
-        {
+        var background = new DrawingVisual();
+        using (var context = background.RenderOpen())
             context.DrawRectangle(window.Background ?? Brushes.White, null, bounds);
-            context.DrawRectangle(new VisualBrush(content)
-            {
-                ViewboxUnits = BrushMappingMode.Absolute,
-                Viewbox = bounds,
-                Stretch = Stretch.Fill
-            }, null, bounds);
-        }
-        bitmap.Render(drawing);
+        bitmap.Render(background);
+        bitmap.Render(window);
         var encoder = new PngBitmapEncoder();
         encoder.Frames.Add(BitmapFrame.Create(bitmap));
         var path = Path.Combine(directory, file);
