@@ -4,13 +4,9 @@ O gerador usa as janelas e os formulários reais do WPF, renderizados em Windows
 
 As imagens documentam a interface e a apresentação de respostas de teste. Não comprovam persistência, pagamento ou integração com a API real. Essa identificação deve acompanhar as figuras no relatório.
 
-## Gerar pela GitHub Actions
+## Geração manual
 
-Depois de enviar o commit ao GitHub, aguarde a execução **Desktop CI**. O job de Windows verifica o aplicativo e gera as capturas. A execução também pode ser iniciada em **Actions → Desktop CI → Run workflow** depois que essa versão do workflow estiver na branch principal.
-
-Na página da execução, baixe o artefato **medishop-desktop-screenshots**, disponível por 30 dias. O pacote inclui PNGs, um README explicativo e `manifest.json` com data, SHA do commit, plataforma, fuso horário, origem dos dados e hash de cada PNG.
-
-O artefato de capturas é enviado mesmo se uma etapa posterior de publicação do executável falhar, desde que a captura tenha produzido arquivos. Uma execução interrompida pode conter só parte das imagens: confira o resultado da etapa e a presença do manifesto.
+O CI não gera nem publica prints. Ele executa testes de contrato e de interface, compila e publica o pacote Windows. As capturas devem ser geradas manualmente em um Windows pelo comando abaixo.
 
 ## Gerar em um Windows local
 

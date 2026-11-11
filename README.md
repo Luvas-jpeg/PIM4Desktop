@@ -2,6 +2,14 @@
 
 Painel administrativo Windows em C# com WPF e .NET 10. Usa a mesma API e as mesmas contas administrativas do site; não acessa PostgreSQL diretamente.
 
+## Download pronto para usar
+
+Baixe o [EXE Windows x64](https://github.com/Luvas-jpeg/PIM4Desktop/releases/download/v1.0.0-demo.20261111/MediShop-Admin-Windows-x64.exe) ou o [pacote ZIP completo](https://github.com/Luvas-jpeg/PIM4Desktop/releases/download/v1.0.0-demo.20261111/MediShop-Admin-Windows-x64.zip). Outras versões ficam em [Releases](https://github.com/Luvas-jpeg/PIM4Desktop/releases).
+
+A API já está configurada para `https://pim4-api-demo.onrender.com/`. Abra no Windows e entre com sua conta Admin. As alterações são realizadas nos dados do Render. O EXE inclui o runtime .NET; o ZIP também fornece `appsettings.json` e informações da compilação. Não há credenciais embutidas.
+
+O visual utiliza controles padrão do WPF, indicadores em texto e formulários compactos.
+
 ## Funcionalidades
 
 - Login restrito à role `Admin`, JWT e renovação compartilhada entre consultas concorrentes.
@@ -26,15 +34,15 @@ Em `appsettings.json`, informe a URL **raiz**, sem `/api`:
 ```json
 {
   "Api": {
-    "BaseUrl": "http://localhost:5278/"
+    "BaseUrl": "https://pim4-api-demo.onrender.com/"
   }
 }
 ```
 
-Para acessar o Render, substitua pela URL HTTPS real da API. A variável `PIM4_API_BASE_URL` tem precedência sobre o arquivo:
+A configuração padrão acessa o Render. Para desenvolvimento local, use `http://localhost:5278/`. A variável `PIM4_API_BASE_URL` tem precedência sobre o arquivo:
 
 ```powershell
-$env:PIM4_API_BASE_URL = "https://sua-api.onrender.com/"
+$env:PIM4_API_BASE_URL = "http://localhost:5278/"
 dotnet run --project PIM4AdminDesktop.csproj
 ```
 
@@ -81,15 +89,15 @@ dotnet run --project tests/DesktopUiChecks/DesktopUiChecks.csproj -c Release
 
 Os executáveis retornam código diferente de zero diante de uma falha. Usam HTTP controlado em memória; não alteram a API ou o banco de produção. Os testes de contrato verificam rotas, métodos, payloads, manutenção da mensagem de negócio, renovação concorrente, logout offline e durante renovação, bloqueio de usuários não administradores e validações dos campos.
 
-A GitHub Actions executa os testes de API no Linux; em Windows compila o WPF, verifica telas/bindings e publica um pacote `win-x64` como artefato por 14 dias. O pacote deve receber a configuração do ambiente antes da distribuição. A CI não publica o desktop para usuários nem altera o Render.
+A GitHub Actions executa os testes de API no Linux; em Windows compila o WPF, verifica telas/bindings e publica um pacote `win-x64` como artefato por 14 dias. O pacote deve receber a configuração do ambiente antes da distribuição. Tags `v*` também publicam o EXE e o ZIP no GitHub Releases após os testes. A CI não altera os dados do Render.
 
 Validação desta alteração: os testes de API foram executados localmente e o aplicativo e o projeto de verificação WPF foram compilados. A execução das telas WPF depende de Windows e permanece para a CI/validação nesse sistema.
 
 ## Capturas para a documentação
 
-A CI gera PNGs das janelas e formulários reais em Windows e publica o artefato `medishop-desktop-screenshots` por 30 dias. Também é possível executar `.\scripts\Capture-Desktop.ps1` em um Windows local. As capturas usam dados fictícios e HTTP substituto em memória; documentam a interface, sem comprovar integração com a API real.
+Os prints são gerados manualmente em um Windows com `.\scripts\Capture-Desktop.ps1`. O CI mantém testes e compilação, sem gerar ou enviar capturas. Consulte o [guia de capturas](docs/CAPTURAS-DESKTOP.md).
 
-O [guia de capturas](docs/CAPTURAS-DESKTOP.md) explica a execução, as 13 cenas previstas e as legendas. O pacote inclui um manifesto com revisão, data e origem das imagens. A geração precisa ser executada em Windows; a compilação em Linux não comprova os PNGs.
+O cenário manual utiliza dados fictícios e HTTP em memória; ele não altera a API do Render nem comprova persistência. Para documentar uma operação integrada, execute o aplicativo normal em Windows com uma conta e dados de teste.
 
 ## Roteiro de homologação
 

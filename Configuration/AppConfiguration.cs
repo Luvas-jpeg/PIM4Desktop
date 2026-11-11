@@ -13,7 +13,7 @@ public static class AppConfiguration
             if (string.IsNullOrWhiteSpace(configured))
             {
                 var path = Path.Combine(AppContext.BaseDirectory, "appsettings.json");
-                if (!File.Exists(path)) configured = "http://localhost:5278/";
+                if (!File.Exists(path)) configured = "https://pim4-api-demo.onrender.com/";
                 else
                 {
                     using var document = JsonDocument.Parse(File.ReadAllText(path));
