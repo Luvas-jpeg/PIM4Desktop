@@ -10,8 +10,8 @@ public sealed class EditorWindow : Window
 {
     private readonly StackPanel _fields = new();
     private readonly TextBlock _error = new() { Foreground = Brushes.Firebrick, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 14, 0, 8) };
-    private readonly Button _save = new() { Content = "Salvar", MinWidth = 110, Padding = new Thickness(16, 10, 16, 10), IsDefault = true };
-    private readonly Button _cancel = new() { Content = "Cancelar", MinWidth = 100, Padding = new Thickness(16, 10, 16, 10), Margin = new Thickness(0, 0, 8, 0), IsCancel = true };
+    private readonly Button _save = new() { Content = "Salvar", MinWidth = 90, Padding = new Thickness(10, 4, 10, 4), IsDefault = true };
+    private readonly Button _cancel = new() { Content = "Cancelar", MinWidth = 90, Padding = new Thickness(10, 4, 10, 4), Margin = new Thickness(0, 0, 8, 0), IsCancel = true };
     private bool _saving, _allowClose;
     public Func<Task<bool>>? SaveAsync { get; set; }
     public Func<string>? ErrorMessage { get; set; }
@@ -21,9 +21,10 @@ public sealed class EditorWindow : Window
     {
         Owner = owner; Title = title; Width = 600; MaxHeight = SystemParameters.WorkArea.Height - 48;
         SizeToContent = SizeToContent.Height; WindowStartupLocation = WindowStartupLocation.CenterOwner;
-        ResizeMode = ResizeMode.NoResize; Background = Brushes.White;
-        var layout = new DockPanel { Margin = new Thickness(24) };
-        var header = new TextBlock { Text = title, FontSize = 23, FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 18) };
+        ResizeMode = ResizeMode.NoResize; Background = SystemColors.ControlBrush;
+        Language = System.Windows.Markup.XmlLanguage.GetLanguage("pt-BR");
+        var layout = new DockPanel { Margin = new Thickness(12) };
+        var header = new TextBlock { Text = title, FontSize = 16, FontWeight = FontWeights.Bold, Margin = new Thickness(0, 0, 0, 12) };
         DockPanel.SetDock(header, Dock.Top); layout.Children.Add(header);
         var footer = new StackPanel();
         footer.Children.Add(_error);
@@ -50,13 +51,13 @@ public sealed class EditorWindow : Window
     public void Note(string text) => _fields.Children.Add(new TextBlock { Text = text, TextWrapping = TextWrapping.Wrap, Foreground = Brushes.DimGray, Margin = new Thickness(0, 0, 0, 12) });
     public TextBox Text(string label, string value = "", bool multiline = false, bool readOnly = false)
     {
-        var input = new TextBox { Text = value, Padding = new Thickness(8), IsReadOnly = readOnly, AcceptsReturn = multiline,
-            TextWrapping = multiline ? TextWrapping.Wrap : TextWrapping.NoWrap, MinHeight = multiline ? 90 : 36 };
+        var input = new TextBox { Text = value, Padding = new Thickness(4), IsReadOnly = readOnly, AcceptsReturn = multiline,
+            TextWrapping = multiline ? TextWrapping.Wrap : TextWrapping.NoWrap, MinHeight = multiline ? 70 : 28 };
         Add(label, input); return input;
     }
     public ComboBox Choice(string label, IEnumerable<KeyValuePair<string, string>> options, string? selected)
     {
-        var input = new ComboBox { ItemsSource = options.ToList(), DisplayMemberPath = "Value", SelectedValuePath = "Key", Padding = new Thickness(8), MinHeight = 36 };
+        var input = new ComboBox { ItemsSource = options.ToList(), DisplayMemberPath = "Value", SelectedValuePath = "Key", Padding = new Thickness(4), MinHeight = 28 };
         input.SelectedValue = selected;
         Add(label, input); return input;
     }
@@ -67,7 +68,7 @@ public sealed class EditorWindow : Window
     }
     private void Add(string label, Control input)
     {
-        _fields.Children.Add(new TextBlock { Text = label, FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 10, 0, 5) });
+        _fields.Children.Add(new TextBlock { Text = label, Margin = new Thickness(0, 8, 0, 4) });
         _fields.Children.Add(input);
         System.Windows.Automation.AutomationProperties.SetName(input, label);
     }

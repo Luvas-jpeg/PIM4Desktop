@@ -1,54 +1,36 @@
 <Window x:Class="PIM4AdminDesktop.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="MediShop Administracao"
+        Title="MediShop Administração" Language="pt-BR"
         Width="1280" Height="800" MinWidth="980" MinHeight="640"
         WindowStartupLocation="CenterScreen"
-        Background="#F4F6F8">
+        Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
-        <SolidColorBrush x:Key="PrimaryBrush" Color="#156B5D" />
-        <SolidColorBrush x:Key="TextBrush" Color="#18201E" />
-        <SolidColorBrush x:Key="MutedBrush" Color="#66736F" />
-
         <Style TargetType="Button">
-            <Setter Property="Padding" Value="16,10" />
-            <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
-            <Setter Property="Foreground" Value="White" />
-            <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="Cursor" Value="Hand" />
-            <Setter Property="Margin" Value="0,0,8,0" />
-            <Style.Triggers><Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.45" /></Trigger></Style.Triggers>
+            <Setter Property="Padding" Value="8,4" />
+            <Setter Property="Margin" Value="0,0,6,0" />
         </Style>
         <Style TargetType="TextBox">
-            <Setter Property="Padding" Value="10,9" />
-            <Setter Property="BorderBrush" Value="#C8D0CD" />
-            <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="Background" Value="White" />
+            <Setter Property="Padding" Value="4" />
         </Style>
         <Style TargetType="PasswordBox">
-            <Setter Property="Padding" Value="10,9" />
-            <Setter Property="BorderBrush" Value="#C8D0CD" />
-            <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="Background" Value="White" />
+            <Setter Property="Padding" Value="4" />
         </Style>
         <Style TargetType="DataGrid">
             <Setter Property="AutoGenerateColumns" Value="False" />
             <Setter Property="CanUserAddRows" Value="False" />
             <Setter Property="CanUserDeleteRows" Value="False" />
             <Setter Property="IsReadOnly" Value="True" />
-            <Setter Property="GridLinesVisibility" Value="Horizontal" />
+            <Setter Property="GridLinesVisibility" Value="All" />
             <Setter Property="HeadersVisibility" Value="Column" />
-            <Setter Property="RowHeight" Value="42" />
-            <Setter Property="ColumnHeaderHeight" Value="40" />
-            <Setter Property="BorderBrush" Value="#DCE2E0" />
-            <Setter Property="AlternatingRowBackground" Value="#F8FAF9" />
+            <Setter Property="RowHeight" Value="28" />
+            <Setter Property="ColumnHeaderHeight" Value="28" />
         </Style>
     </Window.Resources>
 
     <Grid>
-        <Grid x:Name="LoginView" Background="#EEF2F0">
+        <Grid x:Name="LoginView">
             <Grid.Style>
                 <Style TargetType="Grid">
                     <Setter Property="Visibility" Value="Visible" />
@@ -59,24 +41,24 @@
                     </Style.Triggers>
                 </Style>
             </Grid.Style>
-            <Border Width="430" Padding="36" Background="White" BorderBrush="#D6DEDB" BorderThickness="1">
+            <Border Width="350" Padding="16" VerticalAlignment="Center" BorderBrush="Gray" BorderThickness="1">
                 <StackPanel>
-                    <TextBlock Text="MediShop" FontSize="18" FontWeight="Bold" Foreground="{StaticResource PrimaryBrush}" />
-                    <TextBlock Text="Administracao" Margin="0,8,0,6" FontSize="30" FontWeight="SemiBold" Foreground="{StaticResource TextBrush}" />
-                    <TextBlock Text="Acesso restrito aos administradores do instituto." Foreground="{StaticResource MutedBrush}" Margin="0,0,0,28" />
+                    <TextBlock Text="MediShop" FontSize="18" FontWeight="Bold" />
+                    <TextBlock Text="Administração" Margin="0,4,0,8" FontSize="14" />
+                    <TextBlock Text="Acesso restrito aos administradores do instituto." Foreground="DimGray" Margin="0,0,0,16" TextWrapping="Wrap" />
 
-                    <TextBlock Text="E-mail" FontWeight="SemiBold" Margin="0,0,0,7" />
-                    <TextBox x:Name="EmailTextBox" Margin="0,0,0,18" />
-                    <TextBlock Text="Senha" FontWeight="SemiBold" Margin="0,0,0,7" />
+                    <TextBlock Text="E-mail" Margin="0,0,0,4" />
+                    <TextBox x:Name="EmailTextBox" Margin="0,0,0,12" />
+                    <TextBlock Text="Senha" Margin="0,0,0,4" />
                     <PasswordBox x:Name="PasswordInput" Margin="0,0,0,20" KeyDown="PasswordInput_OnKeyDown" />
 
                     <Border Padding="10" Margin="0,0,0,16" Background="#FFF1F0"
                             Visibility="{Binding HasError, Converter={StaticResource BooleanToVisibilityConverter}}">
-                        <TextBlock Text="{Binding ErrorMessage}" Foreground="#A02E2A" TextWrapping="Wrap" />
+                        <TextBlock Text="{Binding ErrorMessage}" Foreground="Firebrick" TextWrapping="Wrap" />
                     </Border>
 
-                    <Button Content="Entrar no painel" Height="44" Click="LoginButton_OnClick" />
-                    <TextBlock Text="{Binding ApiAddress, StringFormat=API: {0}}" Foreground="{StaticResource MutedBrush}"
+                    <Button Content="Entrar no painel" Height="30" Click="LoginButton_OnClick" />
+                    <TextBlock Text="{Binding ApiAddress, StringFormat=API: {0}}" Foreground="DimGray"
                                FontSize="11" Margin="0,18,0,0" TextWrapping="Wrap" />
                 </StackPanel>
             </Border>
@@ -94,63 +76,53 @@
                 </Style>
             </Grid.Style>
             <Grid.RowDefinitions>
-                <RowDefinition Height="64" />
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-            <Border Grid.Row="0" Background="#123B35" Padding="24,0">
-                <DockPanel LastChildFill="True">
-                    <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Text="MediShop" Foreground="White" FontSize="20" FontWeight="Bold" />
-                        <Border Width="1" Height="22" Background="#52746F" Margin="18,0" />
-                        <TextBlock Text="Painel administrativo" Foreground="#D8E5E2" VerticalAlignment="Center" />
-                    </StackPanel>
+            <Border Grid.Row="0" Padding="12" BorderBrush="Gray" BorderThickness="0,0,0,1">
+                <DockPanel LastChildFill="False">
+                    <TextBlock DockPanel.Dock="Left" Text="MediShop — Administração" FontSize="16" FontWeight="Bold" VerticalAlignment="Center" />
                     <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Text="{Binding AdministratorName}" Foreground="White" VerticalAlignment="Center" Margin="0,0,16,0" />
-                        <Button Content="Atualizar" Background="#2B5B53" Margin="0,0,8,0" Click="RefreshButton_OnClick" />
-                        <Button Content="Sair" Background="#8C3A36" Click="LogoutButton_OnClick" />
+                        <TextBlock Text="{Binding AdministratorName}" VerticalAlignment="Center" Margin="12,0" />
+                        <Button Content="Atualizar" Click="RefreshButton_OnClick" />
+                        <Button Content="Sair" Click="LogoutButton_OnClick" />
                     </StackPanel>
                 </DockPanel>
             </Border>
 
-            <Grid Grid.Row="1" Margin="24">
+            <Grid Grid.Row="1" Margin="12">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
 
-                <DockPanel Grid.Row="0" Margin="0,0,0,18">
+                <DockPanel Grid.Row="0" Margin="0,0,0,12">
                     <StackPanel DockPanel.Dock="Left">
-                        <TextBlock Text="Visão operacional" FontSize="26" FontWeight="SemiBold" Foreground="{StaticResource TextBrush}" />
-                        <TextBlock Text="{Binding LastUpdated, StringFormat=Atualizado em {0}}" Foreground="{StaticResource MutedBrush}" Margin="0,4,0,0" />
+                        <TextBlock Text="Resumo" FontSize="14" FontWeight="Bold" />
+                        <TextBlock Text="{Binding LastUpdated, StringFormat=Atualizado em {0}}" Foreground="DimGray" Margin="0,4,0,0" />
                     </StackPanel>
                     <StackPanel DockPanel.Dock="Right" HorizontalAlignment="Right" MaxWidth="560">
-                        <TextBlock Text="{Binding ErrorMessage}" Foreground="#A02E2A" TextWrapping="Wrap" />
-                        <TextBlock Text="{Binding SuccessMessage}" Foreground="#156B5D" TextWrapping="Wrap" />
+                        <TextBlock Text="{Binding ErrorMessage}" Foreground="Firebrick" TextWrapping="Wrap" />
+                        <TextBlock Text="{Binding SuccessMessage}" Foreground="DarkGreen" TextWrapping="Wrap" />
                         <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Width="300"
                                  HorizontalAlignment="Right" Margin="0,6,0,0" ToolTip="Buscar por nome, curso, e-mail ou pedido"
                                  AutomationProperties.Name="Buscar nas listas" />
-                        <TextBlock Text="Buscar por nome, curso, e-mail ou pedido" Foreground="#66736F" FontSize="11" HorizontalAlignment="Right" />
+                        <TextBlock Text="Buscar por nome, curso, e-mail ou pedido" Foreground="DimGray" FontSize="11" HorizontalAlignment="Right" />
                     </StackPanel>
                 </DockPanel>
 
-                <UniformGrid Grid.Row="1" Columns="4" Margin="0,0,0,20">
-                    <Border Background="White" BorderBrush="#DCE2E0" BorderThickness="1" Padding="18" Margin="0,0,10,0">
-                        <StackPanel><TextBlock Text="Cursos ativos" Foreground="{StaticResource MutedBrush}" /><TextBlock Text="{Binding ActiveCourses}" FontSize="28" FontWeight="SemiBold" Margin="0,8,0,0" /></StackPanel>
-                    </Border>
-                    <Border Background="White" BorderBrush="#DCE2E0" BorderThickness="1" Padding="18" Margin="0,0,10,0">
-                        <StackPanel><TextBlock Text="Pedidos pendentes" Foreground="{StaticResource MutedBrush}" /><TextBlock Text="{Binding PendingOrders}" FontSize="28" FontWeight="SemiBold" Margin="0,8,0,0" /></StackPanel>
-                    </Border>
-                    <Border Background="White" BorderBrush="#DCE2E0" BorderThickness="1" Padding="18" Margin="0,0,10,0">
-                        <StackPanel><TextBlock Text="Alunos ativos" Foreground="{StaticResource MutedBrush}" /><TextBlock Text="{Binding ActiveStudents}" FontSize="28" FontWeight="SemiBold" Margin="0,8,0,0" /></StackPanel>
-                    </Border>
-                    <Border Background="White" BorderBrush="#DCE2E0" BorderThickness="1" Padding="18">
-                        <StackPanel><TextBlock Text="Receita confirmada" Foreground="{StaticResource MutedBrush}" /><TextBlock Text="{Binding PaidRevenue, StringFormat=C}" FontSize="28" FontWeight="SemiBold" Margin="0,8,0,0" /></StackPanel>
-                    </Border>
-                </UniformGrid>
+                <GroupBox Grid.Row="1" Header="Indicadores" Margin="0,0,0,12" Padding="8">
+                    <WrapPanel>
+                        <TextBlock Text="{Binding ActiveCourses, StringFormat=Cursos ativos: {0}}" Margin="0,0,24,0" />
+                        <TextBlock Text="{Binding PendingOrders, StringFormat=Pedidos pendentes: {0}}" Margin="0,0,24,0" />
+                        <TextBlock Text="{Binding ActiveStudents, StringFormat=Alunos ativos: {0}}" Margin="0,0,24,0" />
+                        <TextBlock Text="{Binding PaidRevenue, StringFormat=Receita confirmada: {0:C}}" />
+                    </WrapPanel>
+                </GroupBox>
 
-                <TabControl Grid.Row="2" Background="White" BorderBrush="#DCE2E0">
+                <TabControl Grid.Row="2">
                     <TabItem Header="Cursos">
                         <DockPanel Margin="12">
                             <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,12">
@@ -176,7 +148,7 @@
                             <StackPanel DockPanel.Dock="Top" Margin="0,0,0,12">
                                 <TextBlock Text="Selecione o curso para administrar suas turmas" Margin="0,0,0,6" />
                                 <ComboBox ItemsSource="{Binding Courses}" SelectedItem="{Binding SelectedCourse}"
-                                          SelectionChanged="CourseSelection_OnChanged" DisplayMemberPath="Nome" MinHeight="36" Padding="8" AutomationProperties.Name="Curso das turmas" />
+                                          SelectionChanged="CourseSelection_OnChanged" DisplayMemberPath="Nome" MinHeight="28" Padding="4" AutomationProperties.Name="Curso das turmas" />
                                 <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
                                     <Button Content="Nova turma" Click="NewClass_OnClick" IsEnabled="{Binding HasCourse}" />
                                     <Button Content="Editar turma" Click="EditClass_OnClick" IsEnabled="{Binding HasClass}" />
@@ -219,7 +191,7 @@
                             <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,12">
                                 <Button Content="Novo cadastro" Click="NewStudent_OnClick" />
                                 <Button Content="Editar cadastro" Click="EditStudent_OnClick" IsEnabled="{Binding HasStudent}" />
-                                <Button Content="Excluir cadastro" Background="#8C3A36" Click="DeleteStudent_OnClick" IsEnabled="{Binding HasStudent}" />
+                                <Button Content="Excluir cadastro" Click="DeleteStudent_OnClick" IsEnabled="{Binding HasStudent}" />
                             </StackPanel>
                         <DataGrid ItemsSource="{Binding StudentsView}" SelectedItem="{Binding SelectedStudent}" SelectionMode="Single">
                             <DataGrid.Columns>
