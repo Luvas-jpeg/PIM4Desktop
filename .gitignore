@@ -6,3 +6,8 @@ obj/
 artifacts/
 /downloads/
 /package/
+
+# Ferramentas de capturas e material de documentacao apenas local
+/tests/DesktopCapturesLocal/
+/scripts/Capture-Desktop.ps1
+/docs/CAPTURAS-DESKTOP.md

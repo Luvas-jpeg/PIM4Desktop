@@ -93,12 +93,6 @@ A GitHub Actions executa os testes de API no Linux; em Windows compila o WPF, ve
 
 Validação desta alteração: os testes de API foram executados localmente e o aplicativo e o projeto de verificação WPF foram compilados. A execução das telas WPF depende de Windows e permanece para a CI/validação nesse sistema.
 
-## Capturas para a documentação
-
-Os prints são gerados manualmente em um Windows com `.\scripts\Capture-Desktop.ps1`. O CI mantém testes e compilação, sem gerar ou enviar capturas. Consulte o [guia de capturas](docs/CAPTURAS-DESKTOP.md).
-
-O cenário manual utiliza dados fictícios e HTTP em memória; ele não altera a API do Render nem comprova persistência. Para documentar uma operação integrada, execute o aplicativo normal em Windows com uma conta e dados de teste.
-
 ## Roteiro de homologação
 
 Use uma API de homologação e contas/dados de teste para verificar operações com gravação:

@@ -12,13 +12,8 @@ using PIM4AdminDesktop.Views;
 internal static class Program
 {
     [STAThread]
-    private static int Main(string[] args)
+    private static int Main()
     {
-        if (args.Length != 0 && (args.Length != 2 || args[0] != "--screenshots"))
-        {
-            Console.Error.WriteLine("Uso: DesktopUiChecks [--screenshots DIRETORIO]");
-            return 2;
-        }
         var culture = System.Globalization.CultureInfo.GetCultureInfo("pt-BR");
         System.Globalization.CultureInfo.DefaultThreadCurrentCulture = culture;
         System.Globalization.CultureInfo.DefaultThreadCurrentUICulture = culture;
@@ -30,7 +25,6 @@ internal static class Program
             try
             {
                 await RunAsync();
-                if (args.Length == 2) await ScreenshotCapture.RunAsync(args[1]);
             }
             catch (Exception error) { Console.Error.WriteLine(error); exitCode = 1; }
             finally { app.Shutdown(); }
