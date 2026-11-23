@@ -4,6 +4,9 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Windows;
 using System.Windows.Threading;
+using System.Windows.Controls;
+using System.Windows.Input;
+using System.Windows.Media;
 using PIM4AdminDesktop;
 using PIM4AdminDesktop.Services;
 using PIM4AdminDesktop.ViewModels;
@@ -19,6 +22,10 @@ internal static class Program
         System.Globalization.CultureInfo.DefaultThreadCurrentUICulture = culture;
         var exitCode = 0;
         var app = new Application { ShutdownMode = ShutdownMode.OnExplicitShutdown };
+        app.Resources.MergedDictionaries.Add(new ResourceDictionary
+        {
+            Source = new Uri("pack://application:,,,/PIM4AdminDesktop;component/Themes/Controls.xaml")
+        });
         var dispatcher = Dispatcher.CurrentDispatcher;
         dispatcher.BeginInvoke(new Action(async () =>
         {
@@ -58,8 +65,20 @@ internal static class Program
         }));
         var window = new MainWindow(api);
         var vm = (MainViewModel)window.DataContext;
-        Check(await vm.LoginAsync("admin@example.test", "password"), vm.ErrorMessage);
         window.Show();
+        await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
+        var password = (PasswordBox)window.FindName("PasswordInput");
+        // Focusing an empty password field used to terminate WPF under Wine when
+        // the default system font could not be resolved for caret metrics.
+        Check(new Typeface(password.FontFamily, FontStyles.Normal, FontWeights.Normal, FontStretches.Normal)
+            .TryGetGlyphTypeface(out _), "Fonte incorporada da senha não foi carregada.");
+        Check(password.FontFamily.LineSpacing > 0, "Métricas da fonte da senha indisponíveis.");
+        Check(password.Focus() && Keyboard.FocusedElement == password, "Campo de senha não recebeu foco.");
+        await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
+        password.Password = "password";
+        Check(password.Password == "password", "Campo de senha não aceita entrada.");
+        password.Clear();
+        Check(await vm.LoginAsync("admin@example.test", "password"), vm.ErrorMessage);
         await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
         Check(((FrameworkElement)window.FindName("AdminView")).Visibility == Visibility.Visible, "Painel oculto após login.");
         Check(((FrameworkElement)window.FindName("LoginView")).Visibility == Visibility.Collapsed, "Login permanece visível.");

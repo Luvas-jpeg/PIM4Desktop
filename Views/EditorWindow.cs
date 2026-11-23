@@ -21,10 +21,12 @@ public sealed class EditorWindow : Window
     {
         Owner = owner; Title = title; Width = 600; MaxHeight = SystemParameters.WorkArea.Height - 48;
         SizeToContent = SizeToContent.Height; WindowStartupLocation = WindowStartupLocation.CenterOwner;
-        ResizeMode = ResizeMode.NoResize; Background = SystemColors.ControlBrush;
+        ResizeMode = ResizeMode.NoResize; Background = (Brush)FindResource("PageBrush");
+        Foreground = (Brush)FindResource("InkBrush"); FontFamily = (FontFamily)FindResource("AppFont"); FontSize = 13;
+        _save.SetResourceReference(StyleProperty, "PrimaryButton");
         Language = System.Windows.Markup.XmlLanguage.GetLanguage("pt-BR");
-        var layout = new DockPanel { Margin = new Thickness(12) };
-        var header = new TextBlock { Text = title, FontSize = 16, FontWeight = FontWeights.Bold, Margin = new Thickness(0, 0, 0, 12) };
+        var layout = new DockPanel { Margin = new Thickness(24) };
+        var header = new TextBlock { Text = title, FontSize = 22, FontWeight = FontWeights.Bold, Margin = new Thickness(0, 0, 0, 12) };
         DockPanel.SetDock(header, Dock.Top); layout.Children.Add(header);
         var footer = new StackPanel();
         footer.Children.Add(_error);

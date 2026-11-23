@@ -4,11 +4,11 @@ Painel administrativo Windows em C# com WPF e .NET 10. Usa a mesma API e as mesm
 
 ## Download pronto para usar
 
-Baixe o [EXE Windows x64](https://github.com/Luvas-jpeg/PIM4Desktop/releases/download/v1.0.0-demo.20261111/MediShop-Admin-Windows-x64.exe) ou o [pacote ZIP completo](https://github.com/Luvas-jpeg/PIM4Desktop/releases/download/v1.0.0-demo.20261111/MediShop-Admin-Windows-x64.zip). Outras versões ficam em [Releases](https://github.com/Luvas-jpeg/PIM4Desktop/releases).
+Baixe o [EXE Windows x64](https://github.com/Luvas-jpeg/PIM4Desktop/releases/download/v1.0.1-demo.20261123/MediShop-Admin-Windows-x64.exe) ou o [pacote ZIP completo](https://github.com/Luvas-jpeg/PIM4Desktop/releases/download/v1.0.1-demo.20261123/MediShop-Admin-Windows-x64.zip). Outras versões ficam em [Releases](https://github.com/Luvas-jpeg/PIM4Desktop/releases).
 
 A API já está configurada para `https://pim4-api-demo.onrender.com/`. Abra no Windows e entre com sua conta Admin. As alterações são realizadas nos dados do Render. O EXE inclui o runtime .NET; o ZIP também fornece `appsettings.json` e informações da compilação. Não há credenciais embutidas.
 
-O visual utiliza controles padrão do WPF, indicadores em texto e formulários compactos.
+O visual usa verde e azul escuros, cartões de indicadores, tabelas com linhas alternadas e formulários com estilos compartilhados. A fonte DejaVu Sans é incorporada ao executável, com sua licença em `Assets/Fonts/LICENSE.txt`.
 
 ## Funcionalidades
 
@@ -61,6 +61,22 @@ dotnet publish PIM4AdminDesktop.csproj -c Release -r win-x64 --self-contained tr
 
 Distribua a pasta publicada completa, incluindo `appsettings.json`. Configure a URL de produção antes de entregar. Não há instalador nem atualização automática nesta versão.
 
+## Execução pelo Wine no Linux
+
+O destino oficial continua sendo Windows. No Wine, a versão anterior podia fechar sem diálogo ao focar o campo de senha: o log mostrava `System.Environment.FailFast` em `FontFamily.get_FirstFontFamily`, chamado pelo cálculo da altura do cursor. Esta versão incorpora DejaVu Sans e define essa fonte explicitamente nos campos de texto e senha, evitando depender das fontes padrão do prefixo Wine.
+
+Depois de publicar, execute a versão atualizada (o EXE antigo em Downloads não é modificado):
+
+```bash
+wine artifacts/desktop/PIM4AdminDesktop.exe
+```
+
+Para registrar uma falha durante a execução:
+
+```bash
+wine artifacts/desktop/PIM4AdminDesktop.exe > /tmp/pim4-wine.log 2>&1
+```
+
 ## Organização
 
 ```text
@@ -91,7 +107,7 @@ Os executáveis retornam código diferente de zero diante de uma falha. Usam HTT
 
 A GitHub Actions executa os testes de API no Linux; em Windows compila o WPF, verifica telas/bindings e publica um pacote `win-x64` como artefato por 14 dias. O pacote deve receber a configuração do ambiente antes da distribuição. Tags `v*` também publicam o EXE e o ZIP no GitHub Releases após os testes. A CI não altera os dados do Render.
 
-Validação desta alteração: os testes de API foram executados localmente e o aplicativo e o projeto de verificação WPF foram compilados. A execução das telas WPF depende de Windows e permanece para a CI/validação nesse sistema.
+Validação local desta alteração: os 10 testes de API passaram, o executável Windows x64 foi publicado e as verificações WPF passaram no Wine 11.22, incluindo carregamento da fonte incorporada, foco no campo de senha vazio, login simulado, indicadores, filtros, formulários e logout offline. A API usada nesses testes é simulada; a validação no Windows continua coberta pela CI.
 
 ## Roteiro de homologação
 
